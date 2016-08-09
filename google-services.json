@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "116761968278",
+    "firebase_url": "https://coach-app-b366a.firebaseio.com",
+    "project_id": "coach-app-b366a",
+    "storage_bucket": "coach-app-b366a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:116761968278:android:873c5199418ad58b",
+        "android_client_info": {
+          "package_name": "com.ionicframework.coach"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "116761968278-eommk2c1ali5e9a0o4bpapi1flbh71ec.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDtwZTqL7Y-EHWmJGXLOEbgIOfrUU5Iri8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

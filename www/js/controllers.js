@@ -1,6 +1,6 @@
-angular.module('starter.controllers', [])
+angular.module('coach.controllers', [])
 
-.controller('AppCtrl', function($scope, $ionicModal, $timeout) {
+.controller('AppCtrl', function($scope, $ionicModal, $timeout, auth) {
 
   // With the new view caching in Ionic, Controllers are only called
   // when they are recreated or on app start, instead of every page change.
@@ -26,7 +26,7 @@ angular.module('starter.controllers', [])
 
   // Open the login modal
   $scope.login = function() {
-    $scope.modal.show();
+    auth.$authWithOAuthRedirect("facebook");
   };
 
   // Perform the login action when the user submits the login form
