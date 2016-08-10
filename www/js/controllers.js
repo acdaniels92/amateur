@@ -111,7 +111,4 @@ angular.module('coach.controllers', [])
     $scope.selectedTeam = teamData.subTeamId;
     console.log("in here");
   });
-})
-
-.controller('PlaylistCtrl', function($scope, $stateParams) {
 });
