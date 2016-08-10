@@ -1,3 +1,6 @@
+// adamjdaniels89@gmail.com
+// jimbob97
+
 angular.module('coach.controllers', [])
 
 .controller('AppCtrl', function($scope, $ionicModal, $timeout, $firebaseArray, auth) {
@@ -58,14 +61,15 @@ angular.module('coach.controllers', [])
   $scope.newTeamData = {};
   $scope.teamData = $firebaseArray(teamsRef);
 
-  var teamLength = $scope.teamData.length
-  var count = 0;
+  $scope.teamData.$loaded().then(function(teamData) {
+    var teamLength = teamData.length
+    console.log(teamLength);
 
-  for(var team in $scope.teamData) {
-    console.dir(team);
-    console.log("in");
-    count++;
-  }
+    for(var i = 0;i<teamData.length;i++) {
+      teamData[i].teamId = i;
+      console.log("in");
+    }
+  });
 
   console.dir($scope.teamData);
 
@@ -93,13 +97,21 @@ angular.module('coach.controllers', [])
     }, 1000);
   };
 
-  $scope.setTeam = function(team) {
-    $scope.selectedTeam=team;
+  $scope.setTeam = function(teamId) {
+    $scope.subTeamPage = true;
+    $scope.subTeamId = teamId;
   };
 })
 
 .controller('TeamCtrl', function($scope, $firebaseArray) {
-  console.dir($scope.selectedTeam);
+  var teamsRef = new Firebase("https//coach-app-b366a.firebaseio.com/teams/" + $scope.userId);
+  $scope.teamData = $firebaseArray(teamsRef);
+  $scope.teamData.$loaded().then(function(teamData) {
+    console.dir(teamData);
+    console.dir($scope.subTeamId);
+    $scope.selectedTeam = teamData.subTeamId;
+    console.log("in here");
+  });
 })
 
 .controller('PlaylistCtrl', function($scope, $stateParams) {
