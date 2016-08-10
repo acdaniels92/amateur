@@ -1,5 +1,4 @@
-// adamjdaniels89@gmail.com
-// jimbob97
+
 
 angular.module('coach.controllers', [])
 
