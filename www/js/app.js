@@ -4,7 +4,7 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-angular.module('coach', ['ionic', 'firebase', 'coach.controllers'])
+var app = angular.module('coach', ['ionic', 'firebase', 'coach.controllers'])
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -25,6 +25,11 @@ angular.module('coach', ['ionic', 'firebase', 'coach.controllers'])
 .factory("auth", function($firebaseAuth) {
   var usersRef = new Firebase("https//coach-app-b366a.firebaseio.com/users");
   return $firebaseAuth(usersRef);
+})
+
+.factory("teams", function($firebaseArray, $scope) {
+  var teamsRef = new Firebase("https//coach-app-b366a.firebaseio.com/teams/" + $scope.userId);
+  return $firebaseArray(teamsRef);
 })
 
 .config(function($stateProvider, $urlRouterProvider) {
@@ -51,6 +56,26 @@ angular.module('coach', ['ionic', 'firebase', 'coach.controllers'])
     views: {
       'menuContent': {
         templateUrl: 'templates/manage.html'
+      }
+    }
+  })
+
+  .state('app.teams', {
+    url: '/teams',
+    views: {
+      'menuContent': {
+        templateUrl: 'templates/teams.html',
+        controller: 'TeamsCtrl'
+      }
+    }
+  })
+
+  .state('app.team', {
+    url:'/teams/:teamId',
+    views: {
+      'menuContent': {
+        templateUrl: 'templates/team.html',
+        controller: 'TeamCtrl'
       }
     }
   })
@@ -83,5 +108,5 @@ angular.module('coach', ['ionic', 'firebase', 'coach.controllers'])
     }
   });
   // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/app/playlists');
+  $urlRouterProvider.otherwise('/app/teams');
 });

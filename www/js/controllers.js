@@ -1,6 +1,6 @@
 angular.module('coach.controllers', [])
 
-.controller('AppCtrl', function($scope, $ionicModal, $timeout, auth) {
+.controller('AppCtrl', function($scope, $ionicModal, $timeout, $firebaseArray, auth) {
 
   // With the new view caching in Ionic, Controllers are only called
   // when they are recreated or on app start, instead of every page change.
@@ -8,7 +8,7 @@ angular.module('coach.controllers', [])
   // listen for the $ionicView.enter event:
   //$scope.$on('$ionicView.enter', function(e) {
   //});
-
+  $scope.userId = 'test1234';
   // Form data for the login modal
   $scope.loginData = {};
 
@@ -39,6 +39,7 @@ angular.module('coach.controllers', [])
       $scope.closeLogin();
     }, 1000);
   };
+
 })
 
 .controller('PlaylistsCtrl', function($scope) {
@@ -50,6 +51,55 @@ angular.module('coach.controllers', [])
     { title: 'Rap', id: 5 },
     { title: 'Cowbell', id: 6 }
   ];
+})
+
+.controller('TeamsCtrl', function($scope, $ionicModal, $firebaseArray) {
+  var teamsRef = new Firebase("https//coach-app-b366a.firebaseio.com/teams/" + $scope.userId);
+  $scope.newTeamData = {};
+  $scope.teamData = $firebaseArray(teamsRef);
+
+  var teamLength = $scope.teamData.length
+  var count = 0;
+
+  for(var team in $scope.teamData) {
+    console.dir(team);
+    console.log("in");
+    count++;
+  }
+
+  console.dir($scope.teamData);
+
+  $ionicModal.fromTemplateUrl('templates/makeTeam.html', {
+    scope: $scope
+  }).then(function(modal) {
+    $scope.addTeamModal = modal;
+  });
+
+  $scope.closeTeam = function() {
+    $scope.addTeamModal.hide();
+  };
+
+  $scope.addTeam = function() {
+    $scope.addTeamModal.show();
+  };
+
+  $scope.makeTeam = function() {
+    $scope.teamData.$add({
+      "name": $scope.newTeamData.teamName,
+      "sport": $scope.newTeamData.sport
+    });
+    $timeout(function() {
+      $scope.closeTeam();
+    }, 1000);
+  };
+
+  $scope.setTeam = function(team) {
+    $scope.selectedTeam=team;
+  };
+})
+
+.controller('TeamCtrl', function($scope, $firebaseArray) {
+  console.dir($scope.selectedTeam);
 })
 
 .controller('PlaylistCtrl', function($scope, $stateParams) {

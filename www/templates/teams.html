@@ -1,0 +1,12 @@
+<ion-view view-title="Teams">
+  <ion-content>
+    <ion-list>
+      <ion-item ng-repeat="team in teamData" href="#/app/teams/{{team.$$hashKey}}" ng-click="setTeam({{team}})">
+        {{team.name}}
+      </ion-item>
+      <ion-item ng-click="addTeam()">
+        Add Team
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>
