@@ -4,7 +4,7 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-var app = angular.module('coach', ['ionic', 'firebase', 'coach.controllers'])
+var app = angular.module('coach', ['ionic', 'firebase', 'ngStorage', 'coach.controllers', 'coach.services'])
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -20,16 +20,6 @@ var app = angular.module('coach', ['ionic', 'firebase', 'coach.controllers'])
       StatusBar.styleDefault();
     }
   });
-})
-
-.factory("auth", function($firebaseAuth) {
-  var usersRef = new Firebase("https//coach-app-b366a.firebaseio.com/users");
-  return $firebaseAuth(usersRef);
-})
-
-.factory("teams", function($firebaseArray, $scope) {
-  var teamsRef = new Firebase("https//coach-app-b366a.firebaseio.com/teams/" + $scope.userId);
-  return $firebaseArray(teamsRef);
 })
 
 .config(function($stateProvider, $urlRouterProvider) {
@@ -74,8 +64,7 @@ var app = angular.module('coach', ['ionic', 'firebase', 'coach.controllers'])
     url:'/teams/:teamId',
     views: {
       'menuContent': {
-        templateUrl: 'templates/team.html',
-        controller: 'TeamCtrl'
+        templateUrl: 'templates/team.html'
       }
     }
   })

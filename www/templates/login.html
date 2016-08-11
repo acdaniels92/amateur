@@ -6,19 +6,31 @@
     </div>
   </ion-header-bar>
   <ion-content>
-    <form ng-submit="doLogin()">
+    <form name="loginForm" novalidate>
       <div class="list">
         <label class="item item-input">
-          <span class="input-label">Username</span>
-          <input type="text" ng-model="loginData.username">
+          <span class="input-label">Name</span>
+          <input type="text" ng-model="loginData.name">
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Email</span>
+          <input type="text" ng-model="loginData.email" required>
         </label>
         <label class="item item-input">
           <span class="input-label">Password</span>
-          <input type="password" ng-model="loginData.password">
+          <input type="password" ng-model="loginData.password" required>
         </label>
-        <label class="item">
-          <button class="button button-block button-positive" type="submit">Log in</button>
-        </label>
+      </div>
+      <div class="padding">
+        <p ng-show="loginForm.email.$error.required">* Username is required</p>
+        <p ng-show="loginForm.password.$error.required">* Password is required</p>
+      </div>
+      <div class="padding">
+        <button class="button button-block button-positive" ng-click="doLogin()">Login</button>
+        <button class="button button-block button-assertive" ng-click="doRegister()">Register</button>
+      </div>
+      <div class="padding">
+        <button class="button button-block button-positive" ng-click="googleLogin()">Sign in with Google</button>
       </div>
     </form>
   </ion-content>

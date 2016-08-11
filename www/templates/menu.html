@@ -18,20 +18,17 @@
     </ion-header-bar>
     <ion-content>
       <ion-list>
-        <ion-item menu-close ng-hide="authData" ng-click="login()">
+        <ion-item menu-close ng-hide="$storage.loggedIn" ng-click="login()">
           Login
         </ion-item>
-        <ion-item menu-close ng-show="authData" href="#/app/account">
+        <ion-item menu-close ng-show="$storage.loggedIn" href="#/app/account">
           Account
         </ion-item>
-        <ion-item menu-close href="#/app/search">
-          Search
+        <ion-item menu-close href="#/app/teams">
+          Teams
         </ion-item>
-        <ion-item menu-close href="#/app/browse">
-          Browse
-        </ion-item>
-        <ion-item menu-close href="#/app/playlists">
-          Playlists
+        <ion-item menu-close ng-show="$storage.loggedIn" ng-click="logout()">
+          Log Out
         </ion-item>
       </ion-list>
     </ion-content>

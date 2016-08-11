@@ -2,7 +2,7 @@
 
 angular.module('coach.controllers', [])
 
-.controller('AppCtrl', function($scope, $ionicModal, $timeout, $firebaseArray, auth) {
+.controller('AppCtrl', function($scope, $ionicModal, $timeout, $ionicPopup, $sessionStorage, $window) {
 
   // With the new view caching in Ionic, Controllers are only called
   // when they are recreated or on app start, instead of every page change.
@@ -10,7 +10,8 @@ angular.module('coach.controllers', [])
   // listen for the $ionicView.enter event:
   //$scope.$on('$ionicView.enter', function(e) {
   //});
-  $scope.userId = 'test1234';
+  $scope.$storage = $sessionStorage;
+
   // Form data for the login modal
   $scope.loginData = {};
 
@@ -24,22 +25,98 @@ angular.module('coach.controllers', [])
   // Triggered in the login modal to close it
   $scope.closeLogin = function() {
     $scope.modal.hide();
+    $scope.$evalAsync(function(){
+       var myWindow = $window.open("", "_self");
+    });
   };
 
   // Open the login modal
   $scope.login = function() {
-    auth.$authWithOAuthRedirect("facebook");
+    $scope.modal.show();
+  };
+
+  $scope.logout = function() {
+    firebase.auth().signOut().then(function() {
+      delete $scope.$storage;
+
+      $sessionStorage.$reset();
+    }, function(error) {
+      console.log(error.message);
+    });
   };
 
   // Perform the login action when the user submits the login form
-  $scope.doLogin = function() {
-    console.log('Doing login', $scope.loginData);
+  $scope.doRegister = function() {
+    firebase.auth().createUserWithEmailAndPassword($scope.loginData.email, $scope.loginData.password).then(function(result) {
+      console.dir(result);
+      if($scope.loginData.name) {
+        firebase.auth().currentUser.updateProfile({displayName: $scope.loginData.name}).then(function() {
+          $sessionStorage.displayName = $scope.loginData.name;
+        }, function(error) {
+          console.log(error.code);
+          var alertPopup = $ionicPopup.alert({
+            title: 'Registration Failed!',
+            template: 'Please resolve the following errors to continue: ' + error.message
+          });
+        });
+      }
+      $scope.$evalAsync(function(){
+         var myWindow = $window.open("", "_self");
+         myWindow.document.write(response.data);
+      });
+    }).catch(function(error) {
+      console.log(error.code);
+      var alertPopup = $ionicPopup.alert({
+        title: 'Registration Failed!',
+        template: 'Please resolve the following errors to continue: ' + error.message
+      });
+    });
+  };
 
-    // Simulate a login delay. Remove this and replace with your login
-    // code if using a login system
-    $timeout(function() {
+  $scope.doLogin = function() {
+    firebase.auth().signInWithEmailAndPassword($scope.loginData.email, $scope.loginData.password).then(function(result) {
+      console.dir(result);
+      $sessionStorage.uid = result.uid;
+      $sessionStorage.email = $scope.loginData.email;
+      if(result.displayName) {
+        $sessionStorage.displayName = result.displayName;
+      }
+      $sessionStorage.loggedIn = true;
       $scope.closeLogin();
-    }, 1000);
+    }).catch(function(error) {
+      console.log(error.code);
+      var alertPopup = $ionicPopup.alert({
+        title: 'Login Failed!',
+        template: 'Please resolve the following errors to continue: ' + error.message
+      });
+    });
+  };
+
+  $scope.googleLogin = function() {
+    var provider = new firebase.auth.GoogleAuthProvider();
+    provider.addScope('email');
+    //provider.addScope('https://www.googleapis.com/auth/gmail.send');
+    firebase.auth().signInWithPopup(provider).then(function(result) {
+      // This gives you a Google Access Token. You can use it to access the Google API.
+      var token = result.credential.accessToken;
+      // The signed-in user info.
+      var user = result.user.providerData;
+      console.dir(user);
+      console.log(token);
+      $sessionStorage.displayName = user[0].displayName;
+      $sessionStorage.email = user[0].email;
+      $sessionStorage.uid = user[0].uid;
+      $sessionStorage.loggedIn = true;
+      $scope.closeLogin();
+    }).catch(function(error) {
+      // Handle Errors here.
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      // The email of the user's account used.
+      var email = error.email;
+      // The firebase.auth.AuthCredential type that was used.
+      var credential = error.credential;
+    });
   };
 
 })
@@ -55,27 +132,20 @@ angular.module('coach.controllers', [])
   ];
 })
 
-.controller('TeamsCtrl', function($scope, $ionicModal, $firebaseArray) {
-  var teamsRef = new Firebase("https//coach-app-b366a.firebaseio.com/teams/" + $scope.userId);
+.controller('TeamsCtrl', function($scope, $ionicModal, $sessionStorage) {
+  $scope.$storage = $sessionStorage;
+
   $scope.newTeamData = {};
-  $scope.teamData = $firebaseArray(teamsRef);
-
-  $scope.teamData.$loaded().then(function(teamData) {
-    var teamLength = teamData.length
-    console.log(teamLength);
-
-    for(var i = 0;i<teamData.length;i++) {
-      teamData[i].teamId = i;
-      console.log("in");
-    }
-  });
-
-  console.dir($scope.teamData);
+  $scope.teamData = {};
 
   $ionicModal.fromTemplateUrl('templates/makeTeam.html', {
     scope: $scope
   }).then(function(modal) {
     $scope.addTeamModal = modal;
+  });
+  console.log($scope.$storage.uid);
+  firebase.database().ref('/teams/' + $scope.$storage.uid).on('value', function(data) {
+    $scope.teamData = data.val();
   });
 
   $scope.closeTeam = function() {
@@ -87,6 +157,10 @@ angular.module('coach.controllers', [])
   };
 
   $scope.makeTeam = function() {
+    firebase.database().ref('/teams/' + $scope.$storage.uid).push({
+      name: $scope.newTeamData.teamName,
+      sport: $scope.newTeamData.sport
+    });
     $scope.teamData.$add({
       "name": $scope.newTeamData.teamName,
       "sport": $scope.newTeamData.sport
@@ -103,12 +177,5 @@ angular.module('coach.controllers', [])
 })
 
 .controller('TeamCtrl', function($scope, $firebaseArray) {
-  var teamsRef = new Firebase("https//coach-app-b366a.firebaseio.com/teams/" + $scope.userId);
-  $scope.teamData = $firebaseArray(teamsRef);
-  $scope.teamData.$loaded().then(function(teamData) {
-    console.dir(teamData);
-    console.dir($scope.subTeamId);
-    $scope.selectedTeam = teamData.subTeamId;
-    console.log("in here");
-  });
+
 });
