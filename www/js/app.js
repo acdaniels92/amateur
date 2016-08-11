@@ -32,6 +32,15 @@ var app = angular.module('coach', ['ionic', 'firebase', 'ngStorage', 'coach.cont
     controller: 'AppCtrl'
   })
 
+  .state('app.login', {
+    url: '/login',
+    views: {
+      'menuContent': {
+        templateUrl: 'templates/login.html'
+      }
+    }
+  })
+
   .state('app.search', {
     url: '/search',
     views: {

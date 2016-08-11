@@ -2,7 +2,7 @@
 
 angular.module('coach.controllers', [])
 
-.controller('AppCtrl', function($scope, $ionicModal, $timeout, $ionicPopup, $sessionStorage) {
+.controller('AppCtrl', function($scope, $ionicModal, $timeout, $ionicPopup, $sessionStorage, $location) {
 
   // With the new view caching in Ionic, Controllers are only called
   // when they are recreated or on app start, instead of every page change.
@@ -25,12 +25,20 @@ angular.module('coach.controllers', [])
   // Triggered in the login modal to close it
   $scope.closeLogin = function() {
     $scope.modal.hide();
+    $location.path('/teams');
   };
 
   // Open the login modal
   $scope.login = function() {
     $scope.modal.show();
   };
+
+  if($scope.loggedIn) {
+    $location.path('app/teams');
+  }
+  else {
+    $location.path('app/login');
+  }
 
   $scope.logout = function() {
     firebase.auth().signOut().then(function() {
@@ -57,10 +65,8 @@ angular.module('coach.controllers', [])
           });
         });
       }
-      $scope.$evalAsync(function(){
-         var myWindow = $window.open("", "_self");
-         myWindow.document.write(response.data);
-      });
+      $scope.$storage.loggedIn = true;
+      $scope.closeLogin();
     }).catch(function(error) {
       console.log(error.code);
       var alertPopup = $ionicPopup.alert({
@@ -79,6 +85,7 @@ angular.module('coach.controllers', [])
         $sessionStorage.displayName = result.displayName;
       }
       $sessionStorage.loggedIn = true;
+      $scope.$storage.loggedIn = true;
       $scope.closeLogin();
     }).catch(function(error) {
       console.log(error.code);
@@ -104,6 +111,7 @@ angular.module('coach.controllers', [])
       $sessionStorage.email = user[0].email;
       $sessionStorage.uid = user[0].uid;
       $sessionStorage.loggedIn = true;
+      $scope.$storage.loggedIn = true;
       $scope.closeLogin();
     }).catch(function(error) {
       // Handle Errors here.
@@ -140,7 +148,12 @@ angular.module('coach.controllers', [])
     $scope.addTeamModal = modal;
   });
 
+  firebase.auth().onAuthStateChanged(function(user){
+    $scope.updateTeamList();
+  });
+
   $scope.updateTeamList = function() {
+    delete $scope.teamData
     $scope.teamData = [];
     firebase.database().ref('teams/' + $scope.$storage.uid).once('value').then(function(snapshot) {
       console.dir(snapshot.val());
