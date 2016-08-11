@@ -1,10 +1,16 @@
-<ion-view view-title="Teams">
-  <ion-content>
+<ion-view view-title="Your Teams">
+  <ion-content class="container">
     <ion-list>
-      <ion-item ng-repeat="team in $storage.teamData" href="#/app/teams/{{team.teamId}}" ng-click="setTeam({{team.teamId}})">
-        {{team.name}}
+      <ion-item ng-repeat="team in teamData" href="#/app/teams/{{team.teamId}}" ng-click="setTeam('{{team.teamId}}')">
+        <h3>{{team.team.name}}</h3>
+        <div class="row">
+          <div class="col-xs-8"><p>Test text</p></div>
+          <div class="col-xs-4">
+            <img class="team-list" src="img/sports/basketball.png">
+          </div>
+        </div>
       </ion-item>
-      <ion-item ng-click="addTeam()">
+      <ion-item class="padding" ng-click="addTeam()">
         Add Team
       </ion-item>
     </ion-list>

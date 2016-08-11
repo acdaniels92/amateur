@@ -11,7 +11,10 @@
         </label>
         <label class="item item-input">
           <span class="input-label">Sport</span>
-          <input type="text" ng-model="newTeamData.sport">
+          <label>
+            <input type="radio" class="sport-radio" ng-model="newTeamData.sport" value="basketball">
+            <img src="/img/sports/basketball.png">
+          </label>
         </label>
         <label class="item">
           <button class="button button-block button-positive" type="submit">Create</button>

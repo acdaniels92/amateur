@@ -64,7 +64,8 @@ var app = angular.module('coach', ['ionic', 'firebase', 'ngStorage', 'coach.cont
     url:'/teams/:teamId',
     views: {
       'menuContent': {
-        templateUrl: 'templates/team.html'
+        templateUrl: 'templates/team.html',
+        controller: 'TeamCtrl'
       }
     }
   })

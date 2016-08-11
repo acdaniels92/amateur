@@ -2,7 +2,7 @@
 
 angular.module('coach.controllers', [])
 
-.controller('AppCtrl', function($scope, $ionicModal, $timeout, $ionicPopup, $sessionStorage, $window) {
+.controller('AppCtrl', function($scope, $ionicModal, $timeout, $ionicPopup, $sessionStorage) {
 
   // With the new view caching in Ionic, Controllers are only called
   // when they are recreated or on app start, instead of every page change.
@@ -25,9 +25,6 @@ angular.module('coach.controllers', [])
   // Triggered in the login modal to close it
   $scope.closeLogin = function() {
     $scope.modal.hide();
-    $scope.$evalAsync(function(){
-       var myWindow = $window.open("", "_self");
-    });
   };
 
   // Open the login modal
@@ -134,19 +131,30 @@ angular.module('coach.controllers', [])
 
 .controller('TeamsCtrl', function($scope, $ionicModal, $sessionStorage) {
   $scope.$storage = $sessionStorage;
-
   $scope.newTeamData = {};
-  $scope.teamData = {};
+  $scope.teamData = [];
 
   $ionicModal.fromTemplateUrl('templates/makeTeam.html', {
     scope: $scope
   }).then(function(modal) {
     $scope.addTeamModal = modal;
   });
-  console.log($scope.$storage.uid);
-  firebase.database().ref('/teams/' + $scope.$storage.uid).on('value', function(data) {
-    $scope.teamData = data.val();
-  });
+
+  $scope.updateTeamList = function() {
+    $scope.teamData = [];
+    firebase.database().ref('teams/' + $scope.$storage.uid).once('value').then(function(snapshot) {
+      console.dir(snapshot.val());
+      snapshot.forEach(function(childSnapshot) {
+        $scope.teamData.push({'teamId': childSnapshot.key, 'team': childSnapshot.val()});
+      });
+    });
+  };
+
+  if($scope.$storage.loggedIn) {
+    //Get Initial Data
+    $scope.updateTeamList();
+    console.dir($scope.teamData);
+  }
 
   $scope.closeTeam = function() {
     $scope.addTeamModal.hide();
@@ -159,23 +167,21 @@ angular.module('coach.controllers', [])
   $scope.makeTeam = function() {
     firebase.database().ref('/teams/' + $scope.$storage.uid).push({
       name: $scope.newTeamData.teamName,
-      sport: $scope.newTeamData.sport
+      sport: 'basketball'
     });
-    $scope.teamData.$add({
-      "name": $scope.newTeamData.teamName,
-      "sport": $scope.newTeamData.sport
-    });
-    $timeout(function() {
-      $scope.closeTeam();
-    }, 1000);
+    $scope.closeTeam();
+    $scope.updateTeamList();
   };
 
   $scope.setTeam = function(teamId) {
-    $scope.subTeamPage = true;
-    $scope.subTeamId = teamId;
+    $sessionStorage.subTeamId = teamId;
   };
 })
 
-.controller('TeamCtrl', function($scope, $firebaseArray) {
-
+.controller('TeamCtrl', function($scope, $firebaseArray, $sessionStorage) {
+  $scope.$storage = $sessionStorage;
+  firebase.database().ref('teams/' + $scope.$storage.uid + '/' + $scope.$storage.subTeamId).once('value').then(function(snapshot) {
+    console.dir(snapshot.val());
+    $scope.selectedTeam = snapshot.val();
+  });
 });
