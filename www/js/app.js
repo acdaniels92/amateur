@@ -97,6 +97,16 @@ var app = angular.module('coach', ['ionic', 'firebase', 'ngStorage', 'coach.cont
       }
     })
 
+  .state('app.player', {
+    url: '/player/:playerId',
+    views: {
+      'menuContent': {
+        templateUrl: 'templates/player.html',
+        controller: 'PlayerCtrl'
+      }
+    }
+  })
+
   .state('app.single', {
     url: '/playlists/:playlistId',
     views: {

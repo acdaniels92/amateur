@@ -33,7 +33,7 @@ angular.module('coach.controllers', [])
     $scope.modal.show();
   };
 
-  if($scope.loggedIn) {
+  if($sessionStorage.loggedIn) {
     $location.path('app/teams');
   }
   else {
@@ -140,6 +140,9 @@ angular.module('coach.controllers', [])
 .controller('TeamsCtrl', function($scope, $ionicModal, $sessionStorage) {
   $scope.$storage = $sessionStorage;
   $scope.newTeamData = {};
+  if($scope.teamData) {
+    delete $scope.teamData;
+  }
   $scope.teamData = [];
 
   $ionicModal.fromTemplateUrl('templates/makeTeam.html', {
@@ -163,12 +166,6 @@ angular.module('coach.controllers', [])
     });
   };
 
-  if($scope.$storage.loggedIn) {
-    //Get Initial Data
-    $scope.updateTeamList();
-    console.dir($scope.teamData);
-  }
-
   $scope.closeTeam = function() {
     $scope.addTeamModal.hide();
   };
@@ -191,10 +188,39 @@ angular.module('coach.controllers', [])
   };
 })
 
-.controller('TeamCtrl', function($scope, $firebaseArray, $sessionStorage) {
+.controller('TeamCtrl', function($scope, $ionicModal, $firebaseArray, $sessionStorage) {
   $scope.$storage = $sessionStorage;
+
+  $ionicModal.fromTemplateUrl('templates/addPlayer.html', {
+    scope: $scope
+  }).then(function(modal) {
+    $scope.addPlayerModal = modal;
+  });
+
   firebase.database().ref('teams/' + $scope.$storage.uid + '/' + $scope.$storage.subTeamId).once('value').then(function(snapshot) {
     console.dir(snapshot.val());
     $scope.selectedTeam = snapshot.val();
   });
+
+  $scope.setPlayer = function(playerId) {
+    $sessionStorage.playerId = teamId;
+  };
+
+  $scope.addPlayer = function() {
+    $scope.addPlayerModal.show();
+  };
+
+  $scope.makePlayer = function() {
+    firebase.database().ref('/teams/' + $scope.$storage.uid + '/' + $scope.$storage.subTeamId + '/players').push({
+      name: $scope.newTeamData.teamName,
+      sport: 'basketball'
+    });
+    $scope.closeTeam();
+    $scope.updateTeamList();
+  };
+})
+
+.controller('PlayerCtrl', function($scope, $firebaseArray, $sessionStorage) {
+  $scope.$storage = $sessionStorage;
+  
 });
