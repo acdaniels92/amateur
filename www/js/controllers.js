@@ -1,4 +1,10 @@
+// So we're currently using firebase to handle our authentication and data storage.
+// Then most things are being passed to a module called ngStorage to handle
+// session based storage which persists as you change between pages.
+// This is not optimal code!!!
 
+// This is an ionic project, which is an extension of Cordova which is an extension of Angular JS.
+// I gave you all the shit so you could google it if needed.
 
 angular.module('coach.controllers', [])
 
@@ -32,14 +38,15 @@ angular.module('coach.controllers', [])
   $scope.login = function() {
     $scope.modal.show();
   };
-
+  //If the user is logged in, show them their teams page
   if($sessionStorage.loggedIn) {
     $location.path('app/teams');
   }
+  //Otherwise take them to the login page
   else {
     $location.path('app/login');
   }
-
+  //Remove all session objects and remove Firebase auth token
   $scope.logout = function() {
     firebase.auth().signOut().then(function() {
       delete $scope.$storage;
