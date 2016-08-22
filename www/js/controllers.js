@@ -209,8 +209,19 @@ angular.module('coach.controllers', [])
     $scope.selectedTeam = snapshot.val();
   });
 
+  $scope.updateTeamList = function() {
+    delete $scope.playerData;
+    $scope.playerData = [];
+    firebase.database().ref('/teams/' + $scope.$storage.uid + '/' + $scope.$storage.subTeamId + '/players').once('value').then(function(snapshot) {
+      console.dir(snapshot.val());
+      snapshot.forEach(function(childSnapshot) {
+        $scope.teamData.push({'teamId': childSnapshot.key, 'team': childSnapshot.val()});
+      });
+    });
+  };
+
   $scope.setPlayer = function(playerId) {
-    $sessionStorage.playerId = teamId;
+    $sessionStorage.playerId = playerId;
   };
 
   $scope.addPlayer = function() {
@@ -219,8 +230,9 @@ angular.module('coach.controllers', [])
 
   $scope.makePlayer = function() {
     firebase.database().ref('/teams/' + $scope.$storage.uid + '/' + $scope.$storage.subTeamId + '/players').push({
-      name: $scope.newTeamData.teamName,
-      sport: 'basketball'
+      name: $scope.newPlayerData.name,
+      position: $scope.newPlayerData.position,
+      number: $scope.newPlayerData.number
     });
     $scope.closeTeam();
     $scope.updateTeamList();
