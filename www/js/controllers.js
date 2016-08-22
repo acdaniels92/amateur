@@ -198,6 +198,8 @@ angular.module('coach.controllers', [])
 .controller('TeamCtrl', function($scope, $ionicModal, $firebaseArray, $sessionStorage) {
   $scope.$storage = $sessionStorage;
 
+  $scope.newPlayerData = {};
+
   $ionicModal.fromTemplateUrl('templates/addPlayer.html', {
     scope: $scope
   }).then(function(modal) {
@@ -228,14 +230,18 @@ angular.module('coach.controllers', [])
     $scope.addPlayerModal.show();
   };
 
+  $scope.closePlayer = function() {
+    $scope.addPlayerModal.hide();
+  };
+
   $scope.makePlayer = function() {
     firebase.database().ref('/teams/' + $scope.$storage.uid + '/' + $scope.$storage.subTeamId + '/players').push({
-      name: $scope.newPlayerData.name,
+      name: $scope.newPlayerData.playerName,
       position: $scope.newPlayerData.position,
       number: $scope.newPlayerData.number
     });
-    $scope.closeTeam();
     $scope.updateTeamList();
+    $scope.closePlayer();
   };
 })
 
